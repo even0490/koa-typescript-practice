@@ -2,8 +2,11 @@ import fs from 'fs'
 import path from 'path'
 
 const loader = async (dir: string) => {
-  const result = await import(dir)
-  return result
+  const result = await import(dir).catch(err => {
+    console.error(err)
+  })
+
+  return result || {}
 }
 
 const checkDirectory = (dir: string) => {
@@ -44,12 +47,15 @@ const folder = (dir: string) => {
 export default (app: any) => {
   const route = folder(path.join(__dirname, '../../routers'))
   route.forEach(async (crl: any) => {
-    const pass = /\.ts|js$/gi.test(crl.module)
-    if (!pass) {
-      return false
-    }
+    const enable = /\.js$/gi.test(crl.module)
+    const unlock = /\.map$/gi.test(crl.module)
 
-    const { router } = await loader(crl.module)
-    app.use(router.routes()).use(router.allowedMethods())
+    if (enable && !unlock) {
+      const { router } = await loader(crl.module)
+
+      if (router) {
+        app.use(router.routes()).use(router.allowedMethods())
+      }
+    }
   })
 }

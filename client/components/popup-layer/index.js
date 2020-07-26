@@ -52,7 +52,7 @@ class PopupLayer extends Component {
     validate: { txt: '确定', callback: null },
   }
 
-  constructor (props) {
+  constructor(props) {
     super(props)
     const { show } = this.props
     this.state = {
@@ -60,7 +60,7 @@ class PopupLayer extends Component {
     }
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     if (!nextState.show) {
       const { node } = this.props
       document.querySelector('html').style.overflow = 'auto'
@@ -90,7 +90,7 @@ class PopupLayer extends Component {
     }
   }
 
-  render () {
+  render() {
     const { show } = this.state
     const { title, content, height, confirm, validate, cancel, layer } = this.props
     return (
@@ -159,43 +159,43 @@ const setScrollTop = top => {
 /**
  * disableScroll 禁止滚动条
  */
-function disableScroll (scroll) {
+function disableScroll() {
   popupLayerScrollTop = getScrollTop()
 
-  const toastNode = document.querySelector('.toast-model-layer')
+  // const toastNode = document.querySelector('.toast-model-layer')
 
   document.documentElement.style.overflow = 'hidden'
   document.body.style.overflow = 'hidden'
 
-  if (toastNode && !scroll) {
-    toastNode.addEventListener('touchmove', event => {
-      event.preventDefault()
-    }, false)
-  }
+  // if (toastNode) {
+  //   toastNode.addEventListener('touchmove', event => {
+  //     event.preventDefault()
+  //   }, false)
+  // }
 }
 
 /**
  * restartScroll 放开滚动条
  */
-function restartScroll () {
-  const toastNode = document.querySelector('.toast-model-layer')
+function restartScroll() {
+  // const toastNode = document.querySelector('.toast-model-layer')
 
-  document.documentElement.style.overflow = 'inherit'
-  document.body.style.overflow = 'inherit'
+  document.documentElement.style.overflow = 'auto'
+  document.body.style.overflow = 'auto'
 
   setScrollTop(popupLayerScrollTop)
 
-  if (toastNode) {
-    toastNode.removeEventListener('touchmove', event => {
-      event.preventDefault()
-    }, false)
-  }
+  // if (toastNode) {
+  //   toastNode.removeEventListener('touchmove', event => {
+  //     event.preventDefault()
+  //   }, false)
+  // }
 }
 
 /**
  * 创建一个节点〜
  */
-function createToast () {
+function createToast() {
   const toast = document.createElement('div')
   toast.setAttribute('id', `toast-${Math.floor(Math.random() * 10000000)}`)
   toast.setAttribute('class', `toast-marker toast-model-layer`)
@@ -204,8 +204,8 @@ function createToast () {
 }
 
 export default {
-  show (options) {
-    const { title, content, duration, confirm, cancel, validate, layer, scroll } = options
+  show(options) {
+    const { title, content, duration, confirm, cancel, validate, layer } = options
     const toast = createToast()
 
     if (duration && typeof duration === 'number') {
@@ -227,6 +227,6 @@ export default {
       layer={layer}
       node={toast} />, toast)
 
-    disableScroll(scroll)
+    disableScroll()
   },
 }

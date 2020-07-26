@@ -106,37 +106,37 @@ const setScrollTop = top => {
 /**
  * disableScroll 禁止滚动条
  */
-function disableScroll (scroll) {
+function disableScroll () {
   popupCustomLayerScrollTop = getScrollTop()
 
-  const toastNode = document.querySelector('.toast-model-custom')
+  // const toastNode = document.querySelector('.toast-model-custom')
 
   document.documentElement.style.overflow = 'hidden'
   document.body.style.overflow = 'hidden'
 
-  if (toastNode && !scroll) {
-    toastNode.addEventListener('touchmove', event => {
-      event.preventDefault()
-    }, false)
-  }
+  // if (toastNode && !scroll) {
+  //   toastNode.addEventListener('touchmove', event => {
+  //     event.preventDefault()
+  //   }, false)
+  // }
 }
 
 /**
  * restartScroll 放开滚动条
  */
 function restartScroll () {
-  const toastNode = document.querySelector('.toast-model-custom')
+  // const toastNode = document.querySelector('.toast-model-custom')
 
   document.documentElement.style.overflow = 'inherit'
   document.body.style.overflow = 'inherit'
 
   setScrollTop(popupCustomLayerScrollTop)
 
-  if (toastNode) {
-    toastNode.removeEventListener('touchmove', event => {
-      event.preventDefault()
-    }, false)
-  }
+  // if (toastNode) {
+  //   toastNode.removeEventListener('touchmove', event => {
+  //     event.preventDefault()
+  //   }, false)
+  // }
 }
 
 /**
@@ -175,6 +175,7 @@ export default {
     disableScroll(scroll)
   },
   hide () {
+    // console.log(document.querySelector('.toast-model-custom'))
     restartScroll()
     document.body.removeChild(document.querySelector('.toast-model-custom'))
   },
