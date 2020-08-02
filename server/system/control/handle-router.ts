@@ -46,6 +46,7 @@ const folder = (dir: string) => {
 
 export default (app: any) => {
   const route = folder(path.join(__dirname, '../../routers'))
+
   route.forEach(async (crl: any) => {
     const enable = /\.js$/gi.test(crl.module)
     const unlock = /\.map$/gi.test(crl.module)

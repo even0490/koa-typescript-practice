@@ -45,7 +45,7 @@ class PopupCustomLayer extends Component {
     layer: true,
   }
 
-  constructor (props) {
+  constructor(props) {
     super(props)
     const { show } = this.props
     this.state = {
@@ -53,14 +53,14 @@ class PopupCustomLayer extends Component {
     }
   }
 
-  componentDidMount () {
+  componentDidMount() {
     const { handler } = this.props
     if (typeof handler === 'function') {
       handler()
     }
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     if (!nextState.show) {
       const { node } = this.props
       document.querySelector('body').style.overflow = 'hidden'
@@ -74,7 +74,7 @@ class PopupCustomLayer extends Component {
     // clearTimeout(this.timer)
   }
 
-  render () {
+  render() {
     const { show } = this.state
     const { content, height, layer } = this.props
     return (
@@ -106,7 +106,7 @@ const setScrollTop = top => {
 /**
  * disableScroll 禁止滚动条
  */
-function disableScroll () {
+function disableScroll() {
   popupCustomLayerScrollTop = getScrollTop()
 
   // const toastNode = document.querySelector('.toast-model-custom')
@@ -124,7 +124,7 @@ function disableScroll () {
 /**
  * restartScroll 放开滚动条
  */
-function restartScroll () {
+function restartScroll() {
   // const toastNode = document.querySelector('.toast-model-custom')
 
   document.documentElement.style.overflow = 'inherit'
@@ -142,7 +142,7 @@ function restartScroll () {
 /**
  * 创建一个节点〜
  */
-function createToast () {
+function createToast() {
   const toast = document.createElement('div')
   toast.setAttribute('id', `toast-${Math.floor(Math.random() * 10000000)}`)
   document.body.appendChild(toast)
@@ -151,7 +151,7 @@ function createToast () {
 }
 
 export default {
-  show (options) {
+  show(options) {
     const { content, duration, handler, layer, scroll } = options
     const toast = createToast()
 
@@ -174,7 +174,7 @@ export default {
 
     disableScroll(scroll)
   },
-  hide () {
+  hide() {
     // console.log(document.querySelector('.toast-model-custom'))
     restartScroll()
     document.body.removeChild(document.querySelector('.toast-model-custom'))

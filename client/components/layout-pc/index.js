@@ -1,18 +1,18 @@
 import React, { Component } from 'react'
 import 'node-fetch'
-import flexible from '../../utils/flexible'
+import flexible from '@utils/flexible'
 
 import '../reset/index.css'
 
 class Layout extends Component {
-  constructor () {
+  constructor() {
     super()
     this.setState = {}
 
     flexible(window, document)
   }
 
-  render () {
+  render() {
     const { children } = this.props
     return (
       <React.Fragment>

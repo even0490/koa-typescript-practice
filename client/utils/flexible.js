@@ -1,19 +1,19 @@
 // 此文件用于templates/index.hbs
 // 达到适配手机与电脑的目的
 
-function flexible (window, document) {
+function flexible(window, document) {
   const { device } = window.CONFIG
   const docElement = document.documentElement
   let screenWidth = docElement.clientWidth
 
-  function setPhoneRem () {
+  function setPhoneRem() {
     if (screenWidth > 425) {
       screenWidth = 425
     }
     docElement.style.fontSize = `${screenWidth / 750 * 100}px`
   }
 
-  function setComputerRem () {
+  function setComputerRem() {
     if (screenWidth > 1366) {
       screenWidth = 1366
     }

@@ -2,9 +2,9 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { render } from 'react-dom'
 
-import Layout from '../../components/layout'
-import LayoutPC from '../../components/layout-pc'
-import MinLayer from '../../components/popup-min-layer'
+import Layout from '@components/layout'
+import LayoutPC from '@components/layout-pc'
+import MinLayer from '@components/popup-min-layer'
 
 import './index.scss'
 
@@ -15,12 +15,12 @@ class App extends Component {
     device: PropTypes.bool,
   }
 
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = { index: 0 }
   }
 
-  componentDidMount () {
+  componentDidMount() {
     fetch('/json').then(response => response.json()).then(res => {
       console.log(res)
     })
@@ -54,7 +54,7 @@ class App extends Component {
     )
   }
 
-  render () {
+  render() {
     const { device } = this.props
 
     return (

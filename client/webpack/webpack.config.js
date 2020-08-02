@@ -74,6 +74,13 @@ const config = {
       },
     ],
   },
+  resolve: {
+    alias: {
+      '@components': path.resolve(__dirname, '../components'),
+      '@utils': path.resolve(__dirname, '../utils'),
+    },
+    extensions: ['.js', '.jsx', '.json'],
+  },
   plugins: [],
 }
 

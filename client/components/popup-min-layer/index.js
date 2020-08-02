@@ -40,7 +40,7 @@ class PopupMinLayer extends Component {
     show: true,
   }
 
-  constructor (props) {
+  constructor(props) {
     super(props)
     const { show } = this.props
     this.state = {
@@ -48,7 +48,7 @@ class PopupMinLayer extends Component {
     }
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     if (!nextState.show) {
       const { node } = this.props
       ReactDOM.unmountComponentAtNode(node)
@@ -61,7 +61,7 @@ class PopupMinLayer extends Component {
     // clearTimeout(this.timer)
   }
 
-  render () {
+  render() {
     const { show } = this.state
     const { content, height, layer, model } = this.props
     return (
@@ -95,7 +95,7 @@ const setScrollTop = top => {
 /**
  * disableScroll 禁止滚动条
  */
-function disableScroll () {
+function disableScroll() {
   popupMinLayerScrollTop = getScrollTop()
 
   const toastNode = document.querySelector('.toast-model-mini')
@@ -113,7 +113,7 @@ function disableScroll () {
 /**
  * restartScroll 放开滚动条
  */
-function restartScroll () {
+function restartScroll() {
   const toastNode = document.querySelector('.toast-model-mini')
   const marker = document.querySelector('.toast-marker')
   if (!marker) {
@@ -133,7 +133,7 @@ function restartScroll () {
 /**
  * 创建一个节点〜
  */
-function createToast () {
+function createToast() {
   const toast = document.createElement('div')
   toast.setAttribute('id', `toast-${Math.floor(Math.random() * 10000000)}`)
   toast.setAttribute('class', `toast-model-mini`)
@@ -142,7 +142,7 @@ function createToast () {
 }
 
 export default {
-  show (options) {
+  show(options) {
     let { content, callback, duration, layer, model } = options
     const toast = createToast()
 
