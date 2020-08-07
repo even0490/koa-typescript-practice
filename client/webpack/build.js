@@ -3,7 +3,7 @@ const prompt = require('./prompt')
 
 prompt().then(({ args }) => {
   const child = shelljs.exec(`
-    webpack --mode production --config ./client/webpack/webpack.config.js --progress --hide-modules ${args}
+    webpack --mode production --config ./client/webpack/webpack.config.js --hide-modules ${args}
   `, { async: true })
 
   child.stdout.on('data', () => {

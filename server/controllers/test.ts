@@ -17,6 +17,21 @@ export default class Test {
     await ctx.render('demo')
   }
 
+  public static async test(ctx: Context) {
+    const { device } = ctxUtils({ ctx })
+
+    ctx.state = Object.assign({}, {
+      title: 'Hello Demo!',
+      config: JSON.stringify({
+        device,
+        question: 'Who is my love?',
+        answer: 'Is you?',
+      }),
+    })
+
+    await ctx.render('2020/test')
+  }
+
   public static async json(ctx: Context) {
     ctx.body = {
       title: 'koa2 json',

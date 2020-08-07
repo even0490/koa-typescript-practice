@@ -1,20 +1,23 @@
 const fs = require('fs')
 const path = require('path')
+const glob = require('glob')
+const webpack = require('webpack')
 const Autoprefixer = require('autoprefixer')
 const CompressionWebpackPlugin = require('compression-webpack-plugin')
 const HTMLInlineCSSWebpackPlugin = require('html-inline-css-webpack-plugin').default
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin')
-// const QiniuPlugin = require('qiniu-webpack-plugin')
+const QiniuPlugin = require('qiniu-webpack-plugin')
 const UglifyWebpackPlugin = require('uglifyjs-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-
-const reg = /[\\/]node_modules[\\/](react|react-dom|react-router|react-router-dom|prop-types|node-fetch)[\\/]/
+const { dll, isDirectory, manifest, qiniu } = require('./config')
 
 const config = {
   stats: {
     colors: true,
+    modules: false,
   },
   output: {
     filename: '[name]-[contenthash:8].js',
@@ -25,17 +28,14 @@ const config = {
   optimization: {
     splitChunks: {
       cacheGroups: {
-        vendors: {
-          name: 'vendors',
-          test: reg,
-          chunks: 'all',
-          priority: 10,
-        },
         common: {
-          name: 'common',
-          chunks: 'all',
-          priority: 5,
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+        },
+        default: {
           minChunks: 2,
+          priority: -20,
+          reuseExistingChunk: true,
         },
       },
     },
@@ -68,10 +68,6 @@ const config = {
           'sass-loader',
         ],
       },
-      {
-        test: /\.handlebars$/,
-        loader: 'handlebars-loader',
-      },
     ],
   },
   resolve: {
@@ -97,89 +93,99 @@ const compressionPlugin = new CompressionWebpackPlugin({
   minRatio: 0.8,
 })
 
-const isDirectory = dir => {
-  let result = false
-  try {
-    const stat = fs.statSync(dir)
-    if (stat && stat.isDirectory()) {
-      result = true
-    }
-  } catch (err) {
-    console.error(`"${dir}" is not a directory!`)
-  }
+const qiniuPlugin = new QiniuPlugin({
+  ACCESS_KEY: qiniu.accessKey,
+  SECRET_KEY: qiniu.secretKey,
+  bucket: qiniu.bucket,
+  path: 'web/static/',
+  include: [
+    /\.js$/,
+    /\.js.gz$/,
+    /\.css$/,
+    /\.css.gz$/,
+  ],
+})
+
+const handleHtmlWebpackPlugin = paths => {
+  const result = paths.map(data => {
+    const userFile = path.resolve(__dirname, `../pages/${data}/index.hbs`)
+    const defaultFile = path.resolve(__dirname, '../templates/index.hbs')
+    const filter = fs.existsSync(userFile)
+    const name = data.replace(/-/ig, '/')
+
+    return new HtmlWebpackPlugin({
+      filename: path.resolve(__dirname, `../../views/${name}.hbs`),
+      template: filter ? userFile : defaultFile,
+      chunks: [data],
+      minify: {
+        collapseWhitespace: true,
+        inject: true,
+        minifyCSS: true,
+        removeComments: true,
+      },
+    })
+  })
+
   return result
 }
 
-const htmlPlugin = address => {
-  const customFile = path.resolve(__dirname, `../pages/${address}/index.hbs`)
-  const defaultFile = path.resolve(__dirname, '../templates/index.hbs')
-  const pass = fs.existsSync(customFile)
-  const template = pass ? customFile : defaultFile
-
-  return new HtmlWebpackPlugin({
-    filename: path.resolve(__dirname, `../../views/${address}.hbs`),
-    template,
-    // hash: true,
-    // chunks: ['runtime', 'vendors', address],
-    minify: {
-      collapseWhitespace: true,
-      inject: true,
-      minifyCSS: true,
-      removeComments: true,
-    },
-  })
-}
-
-// const qiniuPlugin = () => {
-//   const qiniu = {
-//     accessKey: 'xxxx',
-//     secretKey: 'xxxx',
-//     bucket: 'xxxx',
-//   }
-
-//   return new QiniuPlugin({
-//     ACCESS_KEY: qiniu.accessKey,
-//     SECRET_KEY: qiniu.secretKey,
-//     bucket: qiniu.bucket,
-//     path: `blued/dream/`,
-//     include: [
-//       /\.js$/,
-//       /\.js.gz$/,
-//       /\.css$/,
-//       /\.css.gz$/,
-//     ],
-//   })
-// }
-
 module.exports = (env, argv) => {
-  config.plugins.push(miniCssPlugin)
-
-  const dir = path.resolve(__dirname, `../pages/${env.p}`)
-
-  let trunk = env.p
-  if (/\//gi.test(env.p)) {
-    trunk = env.p.split('/').slice(-1)
-  }
-
   const entry = {}
-  entry[trunk] = isDirectory(dir) ? `${dir}/index.js` : `${dir}.js`
 
-  const pass = fs.existsSync(entry[trunk])
-  if (!pass) {
-    throw new Error(`Webpack Options → "entry[env.p] = ${entry[trunk]}" is not a valid path.`)
+  if (env.all === 'true') {
+    const base = [
+      path.resolve(__dirname, `../pages/*/index.js`),
+      path.resolve(__dirname, `../pages/*/*/index.js`),
+    ]
+
+    base.forEach(data => {
+      const pathList = glob.sync(path.resolve(__dirname, data))
+
+      pathList.forEach(item => {
+        const tplPath = `${item.split('/pages/')[1].split('/index.js')[0]}`
+        const page = tplPath.replace(/\//ig, '-')
+
+        entry[page] = item
+      })
+    })
+  } else {
+    let trunk = env.p
+
+    if (/\//gi.test(env.p)) {
+      trunk = env.p.split('/').slice(-1)
+    }
+
+    const dir = path.resolve(__dirname, `../pages/${env.p}`)
+
+    entry[trunk] = isDirectory(dir) ? `${dir}/index.js` : `${dir}.js`
   }
 
   config.entry = entry
-  config.plugins.push(htmlPlugin(env.p))
+  config.plugins.push(miniCssPlugin)
+  config.plugins.push(...handleHtmlWebpackPlugin(env.all === 'true' ? Object.keys(entry) : [env.p]))
+
+  dll.forEach(file => {
+    config.plugins.push(new HtmlWebpackTagsPlugin({
+      append: false,
+      // publicPath: false,
+      tags: [argv.mode === 'production' ? `${file}` : `../dll/${file}`],
+    }))
+  })
+
+  manifest.forEach(file => {
+    config.plugins.push(new webpack.DllReferencePlugin({
+      manifest: path.resolve(__dirname, '../../public/dll', file),
+    }))
+  })
 
   if (argv.mode === 'production') {
     config.devtool = false
-    // config.output.publicPath = 'https://cdn.example.com/'
+    config.output.publicPath = `${qiniu.cdnBase}/web/static/`
     config.optimization.minimize = true
     config.plugins.push(new CleanWebpackPlugin())
     config.plugins.push(compressionPlugin)
     config.plugins.push(new HTMLInlineCSSWebpackPlugin())
-    // config.plugins.push(qiniuPlugin())
+    config.plugins.push(qiniuPlugin)
   } else {
     config.devtool = 'inline-source-map'
     config.watch = true
