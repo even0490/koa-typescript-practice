@@ -2,8 +2,8 @@ const fs = require('fs')
 const path = require('path')
 
 const qiniu = {
-  cdnBase: 'xxxx',
   bucket: 'xxxx',
+  cdnBase: 'xxxx',
   accessKey: 'xxxx',
   secretKey: 'xxxx',
 }

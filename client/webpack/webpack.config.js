@@ -4,7 +4,7 @@ const glob = require('glob')
 const webpack = require('webpack')
 const Autoprefixer = require('autoprefixer')
 const CompressionWebpackPlugin = require('compression-webpack-plugin')
-const HTMLInlineCSSWebpackPlugin = require('html-inline-css-webpack-plugin').default
+// const HTMLInlineCSSWebpackPlugin = require('html-inline-css-webpack-plugin').default
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
@@ -23,7 +23,7 @@ const config = {
     filename: '[name]-[contenthash:8].js',
     chunkFilename: '[name]-[contenthash:8].js',
     path: path.resolve(__dirname, '../../public/build'),
-    publicPath: '/build',
+    publicPath: '/build/',
   },
   optimization: {
     splitChunks: {
@@ -108,10 +108,10 @@ const qiniuPlugin = new QiniuPlugin({
 
 const handleHtmlWebpackPlugin = paths => {
   const result = paths.map(data => {
-    const userFile = path.resolve(__dirname, `../pages/${data}/index.hbs`)
+    const name = data.replace(/-/ig, '/')
+    const userFile = path.resolve(__dirname, `../pages/${name}/index.hbs`)
     const defaultFile = path.resolve(__dirname, '../templates/index.hbs')
     const filter = fs.existsSync(userFile)
-    const name = data.replace(/-/ig, '/')
 
     return new HtmlWebpackPlugin({
       filename: path.resolve(__dirname, `../../views/${name}.hbs`),
@@ -134,8 +134,8 @@ module.exports = (env, argv) => {
 
   if (env.all === 'true') {
     const base = [
-      path.resolve(__dirname, `../pages/*/index.js`),
-      path.resolve(__dirname, `../pages/*/*/index.js`),
+      path.resolve(__dirname, '../pages/*/index.js'),
+      path.resolve(__dirname, '../pages/*/*/index.js'),
     ]
 
     base.forEach(data => {
@@ -149,27 +149,27 @@ module.exports = (env, argv) => {
       })
     })
   } else {
-    let trunk = env.p
-
-    if (/\//gi.test(env.p)) {
-      trunk = env.p.split('/').slice(-1)
-    }
-
+    const page = env.p.replace(/\//ig, '-')
     const dir = path.resolve(__dirname, `../pages/${env.p}`)
 
-    entry[trunk] = isDirectory(dir) ? `${dir}/index.js` : `${dir}.js`
+    entry[page] = isDirectory(dir) ? `${dir}/index.js` : `${dir}.js`
   }
 
   config.entry = entry
   config.plugins.push(miniCssPlugin)
-  config.plugins.push(...handleHtmlWebpackPlugin(env.all === 'true' ? Object.keys(entry) : [env.p]))
+  config.plugins.push(...handleHtmlWebpackPlugin(env.all === 'true' ? Object.keys(entry) : [env.p.replace(/\//ig, '-')]))
 
   dll.forEach(file => {
-    config.plugins.push(new HtmlWebpackTagsPlugin({
+    const tags = {
       append: false,
-      // publicPath: false,
-      tags: [argv.mode === 'production' ? `${file}` : `../dll/${file}`],
-    }))
+      tags: file,
+    }
+
+    if (argv.mode !== 'production') {
+      tags.publicPath = '/dll/'
+    }
+
+    config.plugins.push(new HtmlWebpackTagsPlugin(tags))
   })
 
   manifest.forEach(file => {
@@ -184,7 +184,7 @@ module.exports = (env, argv) => {
     config.optimization.minimize = true
     config.plugins.push(new CleanWebpackPlugin())
     config.plugins.push(compressionPlugin)
-    config.plugins.push(new HTMLInlineCSSWebpackPlugin())
+    // config.plugins.push(new HTMLInlineCSSWebpackPlugin())
     config.plugins.push(qiniuPlugin)
   } else {
     config.devtool = 'inline-source-map'
