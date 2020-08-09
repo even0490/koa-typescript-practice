@@ -5,11 +5,11 @@ const QiniuPlugin = require('qiniu-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const { qiniu } = require('./config')
 
+// 依赖包
 module.exports = {
   mode: 'production',
   entry: {
     vendors: [
-      // 修改默认依赖包
       'react',
       'react-dom',
       'react-router',

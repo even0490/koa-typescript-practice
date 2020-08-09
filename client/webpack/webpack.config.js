@@ -27,12 +27,16 @@ const config = {
   },
   optimization: {
     splitChunks: {
+      chunks: 'all',
+      automaticNameDelimiter: '-',
       cacheGroups: {
-        common: {
+        vendors: {
+          name: 'vendors',
           test: /[\\/]node_modules[\\/]/,
           priority: -10,
         },
         default: {
+          name: 'default',
           minChunks: 2,
           priority: -20,
           reuseExistingChunk: true,
@@ -77,7 +81,9 @@ const config = {
     },
     extensions: ['.js', '.jsx', '.json'],
   },
-  plugins: [],
+  plugins: [
+    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+  ],
 }
 
 const miniCssPlugin = new MiniCssExtractPlugin({
@@ -108,7 +114,7 @@ const qiniuPlugin = new QiniuPlugin({
 
 const handleHtmlWebpackPlugin = paths => {
   const result = paths.map(data => {
-    const name = data.replace(/-/ig, '/')
+    const name = data.replace(/~/ig, '/')
     const userFile = path.resolve(__dirname, `../pages/${name}/index.hbs`)
     const defaultFile = path.resolve(__dirname, '../templates/index.hbs')
     const filter = fs.existsSync(userFile)
@@ -143,13 +149,13 @@ module.exports = (env, argv) => {
 
       pathList.forEach(item => {
         const tplPath = `${item.split('/pages/')[1].split('/index.js')[0]}`
-        const page = tplPath.replace(/\//ig, '-')
+        const page = tplPath.replace(/\//ig, '~')
 
         entry[page] = item
       })
     })
   } else {
-    const page = env.p.replace(/\//ig, '-')
+    const page = env.p.replace(/\//ig, '~')
     const dir = path.resolve(__dirname, `../pages/${env.p}`)
 
     entry[page] = isDirectory(dir) ? `${dir}/index.js` : `${dir}.js`
@@ -157,7 +163,7 @@ module.exports = (env, argv) => {
 
   config.entry = entry
   config.plugins.push(miniCssPlugin)
-  config.plugins.push(...handleHtmlWebpackPlugin(env.all === 'true' ? Object.keys(entry) : [env.p.replace(/\//ig, '-')]))
+  config.plugins.push(...handleHtmlWebpackPlugin(env.all === 'true' ? Object.keys(entry) : [env.p.replace(/\//ig, '~')]))
 
   dll.forEach(file => {
     const tags = {
