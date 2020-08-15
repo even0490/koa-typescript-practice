@@ -125,9 +125,13 @@ const handleHtmlWebpackPlugin = paths => {
       chunks: [data],
       minify: {
         collapseWhitespace: true,
-        inject: true,
         minifyCSS: true,
+        minifyJS: true,
         removeComments: true,
+        removeRedundantAttributes: true,
+        removeScriptTypeAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        useShortDoctype: true,
       },
     })
   })
