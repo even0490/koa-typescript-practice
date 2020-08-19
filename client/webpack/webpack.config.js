@@ -20,15 +20,15 @@ const config = {
     modules: false,
   },
   output: {
-    filename: '[name]-[contenthash:8].js',
-    chunkFilename: '[name]-[contenthash:8].js',
+    filename: '[name]~[contenthash:8].js',
+    chunkFilename: '[name]~[contenthash:8].js',
     path: path.resolve(__dirname, '../../public/build'),
     publicPath: '/build/',
   },
   optimization: {
     splitChunks: {
       chunks: 'all',
-      automaticNameDelimiter: '-',
+      automaticNameDelimiter: '~',
       cacheGroups: {
         vendors: {
           name: 'vendors',
@@ -74,6 +74,9 @@ const config = {
       },
     ],
   },
+  externals: {
+    // jquery: 'jQuery',
+  },
   resolve: {
     alias: {
       '@components': path.resolve(__dirname, '../components'),
@@ -87,8 +90,8 @@ const config = {
 }
 
 const miniCssPlugin = new MiniCssExtractPlugin({
-  filename: '[name]-[contenthash:8].css',
-  chunkFilename: '[name]-[contenthash:8].css',
+  filename: '[name]~[contenthash:8].css',
+  chunkFilename: '[name]~[contenthash:8].css',
 })
 
 const compressionPlugin = new CompressionWebpackPlugin({

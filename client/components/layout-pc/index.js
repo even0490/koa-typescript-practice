@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import 'node-fetch'
-import flexible from '@utils/flexible'
+import flexible from '../../utils/flexible'
 
 import '../reset/index.css'
 
